@@ -1,11 +1,11 @@
 
-
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Environment" path="res://world/environment.tres" id="1"]
 [ext_resource type="Script" path="res://world/terrain.gd" id="2"]
 [ext_resource type="Script" path="res://world/road.gd" id="3"]
 [ext_resource type="Script" path="res://world/vegetation.gd" id="4"]
+[ext_resource type="Script" path="res://vehicles/truck.gd" id="5"]
 
 [node name="Main" type="Node3D"]
 
@@ -29,3 +29,6 @@ script = ExtResource("3")
 
 [node name="Vegetation" type="Node3D" parent="."]
 script = ExtResource("4")
+
+[node name="Truck" type="Node3D" parent="."]
+script = ExtResource("5")
