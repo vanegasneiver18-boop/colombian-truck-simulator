@@ -1,7 +1,10 @@
 
 extends Node3D
 
-var truck_color = Color(0.12, 0.12, 0.16)
+var speed: float = 0.0
+var acceleration: float = 8.0
+var max_speed: float = 35.0
+var steering: float = 1.2
 
 func _ready():
     create_chassis()
@@ -9,38 +12,38 @@ func _ready():
     create_wheels()
     create_lights()
 
+func _physics_process(delta):
+    if Input.is_key_pressed(KEY_W):
+        speed = move_toward(speed, max_speed, acceleration * delta)
+    elif Input.is_key_pressed(KEY_S):
+        speed = move_toward(speed, -10.0, acceleration * delta)
+    else:
+        speed = move_toward(speed, 0.0, 3.0 * delta)
+
+    if Input.is_key_pressed(KEY_A):
+        rotation.y += steering * delta * sign(speed)
+    if Input.is_key_pressed(KEY_D):
+        rotation.y -= steering * delta * sign(speed)
+
+    translate(Vector3(0, 0, speed * delta))
+
 func create_box(size, position, color):
     var part = MeshInstance3D.new()
     var mesh = BoxMesh.new()
     mesh.size = size
     part.mesh = mesh
     part.position = position
-
     var material = StandardMaterial3D.new()
     material.albedo_color = color
     part.material_override = material
-
     add_child(part)
 
 func create_chassis():
-    create_box(
-        Vector3(2.2, 0.6, 7.0),
-        Vector3(0, 1.0, 0),
-        Color(0.12, 0.12, 0.13)
-    )
+    create_box(Vector3(2.2, 0.6, 7.0), Vector3(0, 1, 0), Color(0.12, 0.12, 0.13))
 
 func create_cabin():
-    create_box(
-        Vector3(2.4, 2.4, 2.2),
-        Vector3(0, 2.5, -2.0),
-        truck_color
-    )
-
-    create_box(
-        Vector3(2.2, 0.9, 0.12),
-        Vector3(0, 3.0, -0.86),
-        Color(0.12, 0.22, 0.3)
-    )
+    create_box(Vector3(2.4, 2.4, 2.2), Vector3(0, 2.5, -2), Color(0.12, 0.12, 0.16))
+    create_box(Vector3(2.2, 0.9, 0.12), Vector3(0, 3, -0.86), Color(0.12, 0.22, 0.3))
 
 func create_wheels():
     for side in [-1, 1]:
@@ -53,22 +56,11 @@ func create_wheels():
             wheel.mesh = mesh
             wheel.rotation_degrees.z = 90
             wheel.position = Vector3(side * 1.3, 0.65, z)
-
             var material = StandardMaterial3D.new()
             material.albedo_color = Color(0.035, 0.035, 0.035)
             wheel.material_override = material
-
             add_child(wheel)
 
 func create_lights():
-    create_box(
-        Vector3(0.35, 0.25, 0.12),
-        Vector3(-0.8, 2.0, -3.12),
-        Color(1.0, 0.85, 0.3)
-    )
-
-    create_box(
-        Vector3(0.35, 0.25, 0.12),
-        Vector3(0.8, 2.0, -3.12),
-        Color(1.0, 0.85, 0.3)
-    )
+    create_box(Vector3(0.35, 0.25, 0.12), Vector3(-0.8, 2, -3.12), Color(1, 0.85, 0.3))
+    create_box(Vector3(0.35, 0.25, 0.12), Vector3(0.8, 2, -3.12), Color(1, 0.85, 0.3))
