@@ -6,6 +6,17 @@ var acceleration: float = 8.0
 var max_speed: float = 35.0
 var steering: float = 1.2
 
+var controls = {
+    "accelerate": false,
+    "brake": false,
+    "left": false,
+    "right": false
+}
+
+func set_control(control_name: String, pressed: bool):
+    if controls.has(control_name):
+        controls[control_name] = pressed
+
 func _ready():
     create_chassis()
     create_cabin()
@@ -13,29 +24,37 @@ func _ready():
     create_lights()
 
 func _physics_process(delta):
-    if Input.is_key_pressed(KEY_W):
+    var accelerating = Input.is_key_pressed(KEY_W) or controls["accelerate"]
+    var braking = Input.is_key_pressed(KEY_S) or controls["brake"]
+    var turning_left = Input.is_key_pressed(KEY_A) or controls["left"]
+    var turning_right = Input.is_key_pressed(KEY_D) or controls["right"]
+
+    if accelerating:
         speed = move_toward(speed, max_speed, acceleration * delta)
-    elif Input.is_key_pressed(KEY_S):
+    elif braking:
         speed = move_toward(speed, -10.0, acceleration * delta)
     else:
         speed = move_toward(speed, 0.0, 3.0 * delta)
 
-    if Input.is_key_pressed(KEY_A):
+    if turning_left:
         rotation.y += steering * delta * sign(speed)
-    if Input.is_key_pressed(KEY_D):
+
+    if turning_right:
         rotation.y -= steering * delta * sign(speed)
 
     translate(Vector3(0, 0, speed * delta))
 
-func create_box(size, position, color):
+func create_box(size: Vector3, part_position: Vector3, color: Color):
     var part = MeshInstance3D.new()
     var mesh = BoxMesh.new()
     mesh.size = size
     part.mesh = mesh
-    part.position = position
+    part.position = part_position
+
     var material = StandardMaterial3D.new()
     material.albedo_color = color
     part.material_override = material
+
     add_child(part)
 
 func create_chassis():
@@ -56,9 +75,11 @@ func create_wheels():
             wheel.mesh = mesh
             wheel.rotation_degrees.z = 90
             wheel.position = Vector3(side * 1.3, 0.65, z)
+
             var material = StandardMaterial3D.new()
             material.albedo_color = Color(0.035, 0.035, 0.035)
             wheel.material_override = material
+
             add_child(wheel)
 
 func create_lights():
